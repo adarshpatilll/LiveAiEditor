@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+*:focus {
+	outline: none;
+}
+
+.prose table {
+	@apply border border-gray-400 w-auto border-collapse;
+}
+
+.prose th,
+.prose td {
+	@apply border border-gray-400 px-3 py-1 text-left;
+	position: relative;
+}
+
+.prose th::after,
+.prose td::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 4px;
+	height: 100%;
+	cursor: col-resize;
+}
+
+.custom-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(120, 120, 120, 0.5) transparent;
+}

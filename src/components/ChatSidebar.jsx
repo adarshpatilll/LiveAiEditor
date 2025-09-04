@@ -23,7 +23,15 @@ export default function ChatSidebar({ editorRef }) {
 		let aiReply;
 
 		if (useAgent) {
-			const agentReply = await agentHandler(userMessage.content);
+			const previousMessages = messages.map((m) => ({
+				role: m.role,
+				content: m.content,
+			}));
+
+			const agentReply = await agentHandler(
+				userMessage.content,
+				previousMessages
+			);
 			aiReply = {
 				role: "assistant",
 				content: agentReply.content,

@@ -6,7 +6,13 @@ function isSearchIntent(text) {
 	return /\b(search|find|latest|news|what's happening)\b/i.test(text);
 }
 
-export async function agentHandler(message) {
+function stripHTML(html) {
+	const tmp = document.createElement("div");
+	tmp.innerHTML = html;
+	return tmp.textContent || tmp.innerText || "";
+}
+
+export async function agentHandler(message, previousMessages = []) {
 	if (isSearchIntent(message)) {
 		const searchRes = await tavilySearch(message);
 		const snippets = searchRes.results
@@ -18,21 +24,28 @@ export async function agentHandler(message) {
 
 		const summaryPrompt = `Summarize these search results concisely:\n\n${snippets}`;
 		const summaryMarkdown = await getAIChat([
+			...previousMessages,
 			{ role: "user", content: summaryPrompt },
 		]);
 
 		const summaryHTML = marked.parse(summaryMarkdown);
+		const summaryText = stripHTML(summaryHTML);
 
 		return {
 			type: "agent",
-			content: summaryHTML,
+			content: summaryText,
 			sources: searchRes.results.map((r) => r.url),
 		};
 	}
 
-	const chatMarkdown = await getAIChat([{ role: "user", content: message }]);
+	const chatMarkdown = await getAIChat([
+		...previousMessages,
+		{ role: "user", content: message },
+	]);
+	const chatText = stripHTML(marked.parse(chatMarkdown));
+
 	return {
 		type: "chat",
-		content: marked.parse(chatMarkdown),
+		content: chatText,
 	};
 }
